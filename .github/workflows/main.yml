@@ -1,0 +1,54 @@
+# Adapted from https://stackoverflow.com/a/64560687/2278742
+
+name: Compile exe
+
+on:
+  - push
+
+jobs:
+  windows:
+    name: run on windows
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - uses: suisei-cn/actions-download-file@v1.3.0
+      id: crinklerexe  # Remember to give an ID if you need the output filename
+      name: Download the file
+      with:
+        url: "https://github.com/runestubbe/Crinkler/raw/master/releases/crinkler22/Win64/Crinkler.exe"
+        target: .
+    - uses: suisei-cn/actions-download-file@v1.3.0
+      id: crinklermap  # Remember to give an ID if you need the output filename
+      name: Download the file
+      with:
+        url: "https://github.com/runestubbe/Crinkler/raw/master/releases/crinkler22/Win64/Crinkler.map"
+        target: .
+    - uses: suisei-cn/actions-download-file@v1.3.0
+      id: crinklerpdb  # Remember to give an ID if you need the output filename
+      name: Download the file
+      with:
+        url: "https://github.com/runestubbe/Crinkler/raw/master/releases/crinkler22/Win64/Crinkler.pdb"
+        target: .
+    - uses: ilammy/msvc-dev-cmd@v1.12.1
+      with:
+        arch: x86
+    - name: compile
+      continue-on-error: true
+      run: | 
+        dir
+        cl /c /01 /GS- main.c
+        dir
+        # https://stackoverflow.com/a/53971921/2278742
+        link /nologo /ENTRY:main /NODEFAULTLIB /SUBSYSTEM:WINDOWS main.obj kernel32.lib user32.lib gdi32.lib ucrt.lib
+        dir
+        ./Crinkler.exe /ENTRY:main /SUBSYSTEM:WINDOWS main.obj kernel32.lib user32.lib gdi32.lib ucrt.lib
+        dir
+    - name: upload executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows
+        path: |
+          main.exe
+          out.exe
+          #dump0000_mini.dmp
+          #dump0000_full.dmp
