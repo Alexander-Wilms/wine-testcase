@@ -30,8 +30,6 @@ jobs:
         url: "https://github.com/runestubbe/Crinkler/raw/master/releases/crinkler23/Win64/Crinkler.pdb"
         target: .
     - uses: ilammy/msvc-dev-cmd@v1.12.1
-      with:
-        arch: x86
     - name: compile
       continue-on-error: true
       run: | 
